@@ -23,7 +23,4 @@ RUN chown -R app:app ./
 
 USER app
 
-VOLUME /code
-WORKDIR /code
-
 CMD ["/usr/src/app/bin/eslint.js"]
