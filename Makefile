@@ -16,15 +16,22 @@ image:
 
 integration: yarn.lock
 	docker run -ti --rm \
+		-v $(PWD):/usr/src/app \
+		--workdir /usr/src/app \
 		$(IMAGE_NAME) npm run $(NPM_INTEGRATION_TARGET)
 
 test: yarn.lock
 	docker run -ti --rm \
+		-v $(PWD):/usr/src/app \
+		--workdir /usr/src/app \
 		$(IMAGE_NAME) npm run $(NPM_TEST_TARGET)
 
 citest:
 	docker run --rm \
+		--workdir /usr/src/app \
 		$(IMAGE_NAME) sh -c "npm run test && npm run integration"
 
-yarn.lock: package.json image
+yarn.lock: package.json Dockerfile
+	$(MAKE) image
 	./bin/yarn install
+	touch yarn.lock

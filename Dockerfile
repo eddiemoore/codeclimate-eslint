@@ -9,9 +9,16 @@ WORKDIR /usr/src/app
 COPY bin/docs ./bin/docs
 COPY engine.json package.json yarn.lock ./
 
+RUN mkdir /usr/local/node_modules
+ENV PREFIX=/usr/local/node_modules
+ENV PATH=$PREFIX/.bin:$PATH
+ENV NODE_PATH=$PREFIX
+ENV NPM_CONFIG_PREFIX=$PREFIX
+
 RUN apt-get install -y git jq yarn && \
-    yarn install && \
-    version="v$(npm -j ls eslint | jq -r .dependencies.eslint.version)" && \
+    yarn config set prefix $PREFIX && \
+    yarn install --modules-folder $PREFIX && \
+    version="v$(npm info --json eslint | jq -r .version)" && \
     bin/docs "$version" && \
     cat engine.json | jq ".version = \"$version\"" > /engine.json && \
     apt-get purge -y git jq yarn && \
